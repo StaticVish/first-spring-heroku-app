@@ -1,30 +1,35 @@
 package com.upmacoders.app.firstapp;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.upmacoders.app.firstapp.controller.HelloWorldController;
-
-import lombok.extern.slf4j.Slf4j;
-
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@Slf4j
+@SpringBootTest(classes = FirstappApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+
 public class FirstappApplicationTests {
+	@LocalServerPort
+	private int port;
+
 	@Autowired
-	HelloWorldController controller;
+	private TestRestTemplate testRestTemplate;
 
 	@Test
-	public void contextLoads() {
-	}
-
-	@Test
-	public void checkResponse() {
-		log.info(controller.helloWorld());
-
+	public void shouldReturn200WhenSendingRequestToController() throws Exception {
+		@SuppressWarnings("rawtypes")
+		ResponseEntity<Map> entity = this.testRestTemplate.getForEntity("http://localhost:" + this.port + "/json",
+				Map.class);
+		then(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 }
